@@ -7,20 +7,23 @@ from data.data2 import construction_data
 from streamlit_folium import st_folium
 
 option = st.sidebar.selectbox(
-    'Please Select a Project',
+    ':red[Please Select a Project]',
     ('Road Construction', 'Metro Bridge', 'Residential Complex','Office Building Renovation','Airport Terminal Expansion'))
-st.write('**Selected Project** : ', option)
-
+st.write(f':red[**Selected Project**] : :green[{option}]')
+st.sidebar.write("--------------------------------")
+st.write("--------------------------------")
 materials_list = list(construction_data[option]["Materials"].keys())
-st.write('**Matrials required** : ', materials_list)
+# st.write('**Matrials Required** with **Location** : ', materials_list)
 
 location_dict = {}
 for material in materials_list:
     locations = tuple([i['Location'] for i in construction_data[option]["Materials"][material]])
     location_dict[material] = st.sidebar.selectbox(
-        f'Please Select a location for **{material}**',locations)
-for material in location_dict:
-    st.write(f'Selected location for **{material}** : ***{location_dict[material]}***')
+        f':red[Please Select a location for] :green[**{material}**]',locations)
+# for material in location_dict:
+#     st.write(f'Selected location for **{material}** : ***{location_dict[material]}***')
+st.write(':green[**Matrials Required**] :red[with] :green[**Location**] : ', location_dict)
+st.write("--------------------------------")
 coords = []
 names = []
 for material in location_dict:
@@ -30,8 +33,9 @@ for material in location_dict:
             lon = location['Longitude']
             coords.append([lon, lat])
             names.append(location_dict[material])
+st.sidebar.write("--------------------------------")
 
-client = ors.Client(key='5b3ce3597851110001cf624852bdcf3a275c475084b12371f05f0f80')
+client = ors.Client(key='your key')
 # coords = [
 #     [-87.7898356, 41.8879452],
 #     [-87.7808524, 41.8906422],
@@ -58,10 +62,10 @@ vehicle_start = [-87.7026, 41.8232]
 vehicle_end = [-87.787984, 41.8871616]
 m = folium.Map(location=list(reversed([-87.787984, 41.8871616])), tiles="cartodbpositron", zoom_start=14)
 for coord, name in zip(coords, names):
-    folium.Marker(location=list(reversed(coord)), popup=name).add_to(m)
+    folium.Marker(location=list(reversed(coord)), popup=folium.Popup(name, show=True)).add_to(m)
 
-folium.Marker(location=list(reversed(vehicle_start)), icon=folium.Icon(color="red"), popup = "Ending Location").add_to(m)
-folium.Marker(location=list(reversed(vehicle_end)), icon=folium.Icon(color="green"), popup = "Starting Location").add_to(m)
+folium.Marker(location=list(reversed(vehicle_start)), icon=folium.Icon(color="red"), popup = folium.Popup("Ending Location", show=True)).add_to(m)
+folium.Marker(location=list(reversed(vehicle_end)), icon=folium.Icon(color="green"), popup = folium.Popup("Starting Location", show=True)).add_to(m)
 
 vehicles = [
     ors.optimization.Vehicle(id=0, profile='driving-car', start=vehicle_start, end=vehicle_end, capacity=[2]),
