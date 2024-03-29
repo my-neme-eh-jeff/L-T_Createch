@@ -4,6 +4,10 @@ import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "@/server/trpc/react";
 import { siteConfig } from "siteConfig";
+import { UIProvider } from "@/Hooks/Providers/NextUIProvider";
+import AuthSessionProvider from "@/Hooks/Providers/AuthSessionProvider";
+import { cn } from "@/utils/ui";
+import type { Author } from "next/dist/lib/metadata/types/metadata-types";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,7 +24,7 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   keywords: [],
   description: siteConfig.description,
-  authors: siteConfig.authors,
+  authors: siteConfig.authors as Author,
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -47,9 +51,25 @@ export default function RootLayout({
   params: { locale: string };
 }) {
   return (
-    <html lang={locale}>
+    <html
+      lang={locale}
+      className={cn("", "scroll-smooth")}
+      suppressHydrationWarning
+    >
       <body className={`font-sans ${inter.variable}`}>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <AuthSessionProvider>
+            <UIProvider
+              themeProps={{
+                attribute: "class",
+                defaultTheme: "system",
+                children,
+              }}
+            >
+              {children}
+            </UIProvider>
+          </AuthSessionProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );
